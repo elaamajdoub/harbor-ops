@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  db:
+    build: ./db
+    container_name: harbor-db
+    environment:
+      POSTGRES_DB: harbor_ops
+      POSTGRES_USER: harbor_user
+      POSTGRES_PASSWORD: harbor_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - harbor_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U harbor_user -d harbor_ops"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - harbor-net
+
+  backend:
+    build: ./backend
+    container_name: harbor-backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://harbor_user:harbor_pass@db:5432/harbor_ops
+      SECRET_KEY: harbor-secret-key-change-in-production-2024
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - harbor-net
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    container_name: harbor-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - harbor-net
+
+volumes:
+  harbor_pgdata:
+
+networks:
+  harbor-net:
+    driver: bridge
