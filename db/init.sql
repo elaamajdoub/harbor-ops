@@ -99,7 +99,7 @@ CREATE TABLE communications (
 -- Seed admin user (password: admin123)
 INSERT INTO users (username, hashed_password) VALUES (
     'admin',
-    '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW'
+    '$2b$12$V3SOS4KR1DY4dqjZ3mlCw.nhL/67LWHyFwMFx24b3GL4nAp.jBnFy'
 );
 
 -- Seed sample data
