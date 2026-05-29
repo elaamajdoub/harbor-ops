@@ -40,12 +40,8 @@ jobs:
           tags: elaamj/harbor-db:latest
 
       - name: Deploy to K3s
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: 192.168.1.10
-          username: k3s
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            kubectl rollout restart deployment/harbor-backend -n harbor-ops
-            kubectl rollout restart deployment/harbor-frontend -n harbor-ops
-            kubectl rollout restart deployment/harbor-db -n harbor-ops
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh -o StrictHostKeyChecking=no k3s@192.168.1.10 "kubectl rollout restart deployment/harbor-backend deployment/harbor-frontend -n harbor-ops"
